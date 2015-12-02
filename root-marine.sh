@@ -48,7 +48,7 @@ PIDS=()
 USERS=()
 USER=""
 PID=""
-obj_random_level=100
+obj_random_level=30
 user_random_level=500
 pid_users_update_delay=10
 pid_users_time=0
@@ -68,7 +68,7 @@ L[5]="                                  -'|    //o\-,                         ,~
 L[6]="                                 \"         |   \"',-,                    |\ "
 L[7]="                              ,-\"  \"\"      |        \"\",                /| \ "
 L[8]="                            .\"      \"\"\"        \"       \"--\"-,.        /_|__\ "
-name="ROOT-MARINE 1.0"
+name="ROOT-MARINE 1.2"
     printf "%$((($cols+${#name})/2))s\n" "$name"
     l=1
     while [ $l -lt $(($first_line - ${#L[@]})) ]; do
@@ -93,7 +93,8 @@ function Init {
 	if [ $l -ge $first_line -a $l -le $last_line ]; then
 	    screen[$l]=$(yes $wave | head -n$(($cols + $obj_max_len*2)) | tr -d '\n')
 	    line_ticks[$l]=0
-	    line_weight[$l]=$(( 1+($l-$first_line+1)*$max_weight/($last_line-$first_line+1) ))
+	    #line_weight[$l]=$(( 1+($l-$first_line+1)*$max_weight/($last_line-$first_line+1) ))
+	    line_weight[$l]=$(( 1+($last_line-$l+1)*$max_weight/($last_line-$first_line+1) ))
 	elif [ $l -lt $first_line ]; then
 	    screen[$l]=""
 	else
@@ -257,9 +258,10 @@ function MoveArrow {
 	TO_ARROW_POS="\033[$((arrow_pos+1));$(($arrow_col+1))f"
 	echo -ne "$TO_ARROW_POS"
 	echo -n "${screen[$arrow_pos]:$(($arrow_col+$obj_max_len)):1}"
-    elif [ $arrow_pos -gt $first_line -a "${screen[$arrow_pos]:$(($arrow_col+$obj_max_len)):1}" == "$arrow" ]; then
+    elif [ $arrow_pos -ge $first_line -a "${screen[$arrow_pos]:$(($arrow_col+$obj_max_len)):1}" == "$arrow" ]; then
 	screen[$arrow_pos]="${screen[$arrow_pos]:0:$(($arrow_col+$obj_max_len))}$wave${screen[$arrow_pos]:$(($arrow_col+$obj_max_len+1))}"
-    elif [ $arrow_pos -le $first_line ]; then
+    fi
+    if [ $arrow_pos -le $first_line ]; then
 	arrow_pos=0
 	return 1
     fi
